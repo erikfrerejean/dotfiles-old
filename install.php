@@ -9,9 +9,9 @@ class DotFileIterator extends FilterIterator
 		'.git',
 	);
 
-	public function __construct()
+	public function __construct($path = __DIR__)
 	{
-		parent::__construct(new DirectoryIterator(__DIR__));
+		parent::__construct(new DirectoryIterator($path));
 	}
 
 	public function accept()
@@ -52,7 +52,22 @@ foreach ($iterator as $it)
 {
 	if ($it->isDir())
 	{
-	
+		$dest = realpath($_homeDir) . '/.' . $it->getFilename() . '/';
+
+		if (!file_exists($dest))
+		{
+			mkdir($dest, 0777, true);
+		}
+
+		$iterator2 = new DotFileIterator($it->getPathname());
+		foreach ($iterator2 as $it2)
+		{
+			$source	= realpath($it2->getPathname());
+			$dest	.= $it2->getFilename();
+
+			echo 'Copying: ' . $source . ' => ' . $dest . PHP_EOL;
+			copy($source, $dest);
+		}
 	}
 	else
 	{
